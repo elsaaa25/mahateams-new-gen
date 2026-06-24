@@ -22,8 +22,13 @@ src/lib                 Helper aplikasi
 prisma/schema.prisma    Schema database PostgreSQL
 docs/LOCAL_DATABASE.md  Panduan PostgreSQL lokal
 docs/NEON_DATABASE.md   Panduan PostgreSQL online Neon
+docs/PROJECT_CONTEXT.md Ringkasan konteks untuk Codex/laptop lain
 .env.example            Contoh environment variable
 ```
+
+## Untuk Codex di Laptop Lain
+
+Baca `docs/PROJECT_CONTEXT.md` terlebih dahulu. File itu berisi konteks produk, keputusan PRD, status implementasi, setup Neon/Vercel, dan next step.
 
 ## Command Lokal
 
@@ -50,10 +55,11 @@ npm run db:studio
 
 ## Environment
 
-Salin `.env.example` menjadi `.env`, lalu isi koneksi PostgreSQL.
+Salin `.env.example` menjadi `.env`, lalu isi koneksi Neon.
 
 ```env
-DATABASE_URL="postgresql://postgres:postgres@localhost:5432/mahateams_new_gen?schema=public"
+DATABASE_URL="postgresql://USER:PASSWORD@EP-pooler.REGION.aws.neon.tech/DBNAME?sslmode=require&channel_binding=require"
+DIRECT_URL="postgresql://USER:PASSWORD@EP.REGION.aws.neon.tech/DBNAME?sslmode=require"
 NEXT_PUBLIC_APP_URL="http://localhost:3000"
 AUTH_SECRET="replace-with-a-long-random-secret"
 ```
