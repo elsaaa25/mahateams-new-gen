@@ -25,7 +25,7 @@ export default async function LoginPage({
   ]);
 
   if (currentUser) {
-    redirect("/");
+    redirect(currentUser.role === "SUPER_ADMIN" ? "/super-admin" : "/");
   }
 
   const hasError = params.error === "invalid";
@@ -39,7 +39,8 @@ export default async function LoginPage({
           </Badge>
           <CardTitle>Login Dashboard</CardTitle>
           <CardDescription>
-            Masuk sebagai Admin atau Member untuk membuka dashboard.
+            Masuk sebagai Super Admin, Admin, atau Member untuk membuka
+            dashboard.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -80,6 +81,7 @@ export default async function LoginPage({
 
           <div className="mt-5 rounded-md bg-zinc-100 p-3 text-xs text-zinc-600">
             <p className="font-medium text-zinc-800">Akun preview lokal</p>
+            <p>Super Admin: owner@mahateams.local / owner123</p>
             <p>Admin: admin.mahative@mahateams.local / admin123</p>
             <p>Member: member@mahateams.local / member123</p>
           </div>

@@ -39,6 +39,7 @@ Sudah ada:
 - Vercel sudah berhasil deploy dari GitHub.
 - Dashboard `/` sudah dynamic dan membaca data dari PostgreSQL.
 - Login sederhana di `/login`.
+- Dashboard khusus Super Admin di `/super-admin`.
 - Role management MVP di `/roles`.
 - Session auth memakai signed cookie.
 - Password preview memakai hash `scrypt`.
@@ -51,7 +52,7 @@ Belum ada:
 - WFH check-in/check-out plan/report
 - halaman member management lengkap
 - halaman izin/sakit/cuti
-- dashboard berbeda untuk tiap role
+- dashboard khusus Admin dan Member
 - middleware auth global
 - UI final
 
@@ -112,6 +113,10 @@ Catatan:
 ## Akun Preview
 
 ```txt
+Super Admin
+email: owner@mahateams.local
+password: owner123
+
 Admin
 email: admin.mahative@mahateams.local
 password: admin123
@@ -229,6 +234,7 @@ Rencana:
 
 ```txt
 src/app/page.tsx              Dashboard dynamic
+src/app/super-admin/page.tsx  Dashboard khusus Super Admin
 src/app/login/page.tsx        Halaman login
 src/app/login/actions.ts      Login/logout actions
 src/app/roles/page.tsx        Role management MVP

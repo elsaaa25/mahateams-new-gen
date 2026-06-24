@@ -92,7 +92,7 @@ async function main() {
       role: "SUPER_ADMIN",
       memberStatus: "TEAM",
       defaultStudioId: mahativeId,
-      passwordHash: null,
+      passwordHash: hashPassword("owner123", "owner-preview-salt"),
     });
 
     const adminId = await upsertUser(client, {
