@@ -1,65 +1,218 @@
-import Image from "next/image";
+import {
+  CalendarDays,
+  CheckCircle2,
+  Clock3,
+  MapPin,
+  QrCode,
+  ShieldCheck,
+  UserRoundCheck,
+} from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
+const metrics = [
+  { label: "Jumlah Presensi", value: "0", color: "text-sky-700" },
+  { label: "Izin", value: "0", color: "text-amber-700" },
+  { label: "Sakit", value: "0", color: "text-violet-700" },
+  { label: "WFH", value: "0", color: "text-blue-700" },
+  { label: "Terlambat", value: "0", color: "text-orange-700" },
+  { label: "Alpha", value: "0", color: "text-red-700" },
+];
+
+const attendancePreview = [
+  {
+    name: "Dwi Ramadhani",
+    studio: "Mahative",
+    mode: "WFO",
+    status: "Tepat Waktu",
+  },
+  {
+    name: "Inti Indriyani",
+    studio: "Kipa",
+    mode: "WFH",
+    status: "Rencana Kerja",
+  },
+  {
+    name: "Naufal Hisyam Abdillah",
+    studio: "Mahative",
+    mode: "WFO",
+    status: "Diluar Jangkauan",
+  },
+];
+
+const calendarDays = [
+  { date: "1", label: "Libur", className: "bg-zinc-200 text-zinc-700" },
+  { date: "2", label: "WFO", className: "bg-emerald-100 text-emerald-800" },
+  { date: "3", label: "WFO", className: "bg-emerald-100 text-emerald-800" },
+  { date: "4", label: "WFH", className: "bg-blue-100 text-blue-800" },
+  { date: "5", label: "Izin", className: "bg-amber-100 text-amber-800" },
+  { date: "6", label: "Sakit", className: "bg-violet-100 text-violet-800" },
+  { date: "7", label: "Alpha", className: "bg-red-100 text-red-800" },
+];
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+    <main className="min-h-screen bg-zinc-50 text-zinc-950">
+      <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-6 py-6 lg:px-8">
+        <header className="flex flex-col gap-4 border-b border-zinc-200 pb-5 md:flex-row md:items-center md:justify-between">
+          <div>
+            <Badge variant="outline" className="mb-3 bg-white">
+              MVP Presensi
+            </Badge>
+            <h1 className="text-2xl font-semibold">MahaTeams New Gen</h1>
+            <p className="mt-2 max-w-2xl text-sm text-zinc-600">
+              Dashboard awal untuk presensi Mahative Studio dan Kipa dengan
+              role, studio, QR WFO, WFH, cuti, dan kalender kerja.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Button>
+              <QrCode aria-hidden="true" />
+              Mulai Presensi
+            </Button>
+            <Button variant="outline">
+              <CalendarDays aria-hidden="true" />
+              Kalender
+            </Button>
+          </div>
+        </header>
+
+        <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+          {metrics.map((metric) => (
+            <Card key={metric.label}>
+              <CardHeader className="pb-2">
+                <CardDescription>{metric.label}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className={`text-3xl font-semibold ${metric.color}`}>
+                  {metric.value}
+                </p>
+              </CardContent>
+            </Card>
+          ))}
+        </section>
+
+        <section className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
+          <Card>
+            <CardHeader>
+              <CardTitle>Riwayat Hari Ini</CardTitle>
+              <CardDescription>
+                Tampilan awal report operasional untuk Super Admin dan Admin.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nama</TableHead>
+                    <TableHead>Studio</TableHead>
+                    <TableHead>Mode</TableHead>
+                    <TableHead>Status</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {attendancePreview.map((item) => (
+                    <TableRow key={item.name}>
+                      <TableCell className="font-medium">{item.name}</TableCell>
+                      <TableCell>{item.studio}</TableCell>
+                      <TableCell>
+                        <Badge variant="secondary">{item.mode}</Badge>
+                      </TableCell>
+                      <TableCell>{item.status}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Kalender Status</CardTitle>
+              <CardDescription>
+                Warna tanggal mengikuti status presensi dan jadwal kerja.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-7 gap-2">
+                {calendarDays.map((day) => (
+                  <div
+                    key={day.date}
+                    className={`flex aspect-square flex-col items-center justify-center rounded-md text-xs font-medium ${day.className}`}
+                  >
+                    <span className="text-base">{day.date}</span>
+                    <span>{day.label}</span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </section>
+
+        <section className="grid gap-6 lg:grid-cols-3">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <ShieldCheck className="size-5 text-emerald-700" />
+                Role
+              </CardTitle>
+              <CardDescription>
+                Super Admin, Admin, dan Member sudah menjadi dasar akses.
+              </CardDescription>
+            </CardHeader>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MapPin className="size-5 text-blue-700" />
+                Studio
+              </CardTitle>
+              <CardDescription>
+                Default Studio dan placement lintas studio disiapkan di schema.
+              </CardDescription>
+            </CardHeader>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Clock3 className="size-5 text-orange-700" />
+                Policy
+              </CardTitle>
+              <CardDescription>
+                Toleransi 10 menit, cutoff Alpha, dan aturan izin sakit siap
+                dikembangkan.
+              </CardDescription>
+              <CardAction>
+                <UserRoundCheck className="size-5 text-zinc-500" />
+              </CardAction>
+            </CardHeader>
+          </Card>
+        </section>
+
+        <footer className="flex items-center gap-2 border-t border-zinc-200 py-4 text-xs text-zinc-500">
+          <CheckCircle2 className="size-4 text-emerald-700" />
+          Stack awal siap: Next.js, shadcn/ui, Prisma, PostgreSQL, GitHub, dan
+          Vercel.
+        </footer>
+      </div>
+    </main>
   );
 }

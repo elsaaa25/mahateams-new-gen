@@ -1,36 +1,86 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MahaTeams New Gen
 
-## Getting Started
+Aplikasi presensi web untuk Mahative Studio dan Kipa.
 
-First, run the development server:
+## Stack
+
+- Next.js App Router
+- TypeScript
+- Tailwind CSS
+- shadcn/ui
+- Prisma
+- PostgreSQL
+- GitHub
+- Vercel
+
+## Folder Penting
+
+```txt
+src/app                 Halaman aplikasi Next.js
+src/components/ui       Komponen shadcn/ui
+src/lib                 Helper aplikasi
+prisma/schema.prisma    Schema database PostgreSQL
+.env.example            Contoh environment variable
+```
+
+## Command Lokal
+
+Di PowerShell Windows, gunakan `npm.cmd`.
+
+```bash
+npm.cmd run dev
+npm.cmd run lint
+npm.cmd run db:generate
+npm.cmd run db:push
+npm.cmd run db:studio
+```
+
+Jika memakai terminal lain, biasanya cukup:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm run lint
+npm run db:generate
+npm run db:push
+npm run db:studio
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Environment
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Salin `.env.example` menjadi `.env`, lalu isi koneksi PostgreSQL.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```env
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/mahateams_new_gen?schema=public"
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
+AUTH_SECRET="replace-with-a-long-random-secret"
+```
 
-## Learn More
+## Alur GitHub
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+git status
+git add .
+git commit -m "Initial app setup"
+git branch -M main
+git remote add origin https://github.com/USERNAME/REPOSITORY.git
+git push -u origin main
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Alur Vercel
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. Buka Vercel.
+2. Import repository GitHub project ini.
+3. Isi environment variable, terutama `DATABASE_URL`.
+4. Deploy.
+5. Setiap push ke branch `main`, Vercel akan deploy ulang.
 
-## Deploy on Vercel
+## Database
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Untuk database baru:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm.cmd run db:generate
+npm.cmd run db:push
+```
+
+`db:push` akan membuat tabel berdasarkan `prisma/schema.prisma` ke database yang ada di `DATABASE_URL`.

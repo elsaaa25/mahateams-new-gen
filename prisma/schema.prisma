@@ -1,0 +1,405 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+  MEMBER
+}
+
+enum MemberStatus {
+  TEAM
+  INTERN
+}
+
+enum InternProgram {
+  MAGANG
+  PKL
+}
+
+enum AccountStatus {
+  ACTIVE
+  INACTIVE
+  ARCHIVED
+}
+
+enum PlacementStatus {
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum WorkMode {
+  WFO
+  WFH
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ON_TIME
+  LATE
+  WFH
+  PERMISSION
+  SICK
+  LEAVE
+  ALPHA
+  HOLIDAY
+  OFF_DAY
+}
+
+enum LocationValidationStatus {
+  INSIDE_RADIUS
+  OUTSIDE_RADIUS
+  UNAVAILABLE
+  NOT_REQUIRED
+}
+
+enum RequestType {
+  PERMISSION
+  SICK
+  LEAVE
+  ACCOUNT_ARCHIVE
+  ACCOUNT_DEACTIVATION
+}
+
+enum RequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+enum CalendarEventType {
+  NATIONAL_HOLIDAY
+  COMPANY_LEAVE
+  REGULAR_OFF_DAY
+  REPLACEMENT_WORKDAY
+  STUDIO_EVENT
+}
+
+enum QrStatus {
+  ACTIVE
+  REVOKED
+}
+
+model Studio {
+  id                   String             @id @default(uuid())
+  name                 String
+  slug                 String             @unique
+  address              String?
+  latitude             Float?
+  longitude            Float?
+  radiusMeters         Int                @default(100)
+  isActive             Boolean            @default(true)
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+  defaultMembers       User[]             @relation("DefaultStudioMembers")
+  placements           Placement[]
+  policies             AttendancePolicy[]
+  weeklyWorkRules      WeeklyWorkRule[]
+  calendarEvents       CalendarEvent[]
+  personalSchedules    PersonalWorkSchedule[]
+  ownerAttendances     AttendanceRecord[] @relation("AttendanceOwnerStudio")
+  locationAttendances  AttendanceRecord[] @relation("AttendanceLocationStudio")
+  picketSchedules      PicketSchedule[]
+  reminders            Reminder[]
+}
+
+model User {
+  id                         String                 @id @default(uuid())
+  name                       String
+  email                      String                 @unique
+  passwordHash               String?
+  role                       UserRole               @default(MEMBER)
+  memberStatus               MemberStatus           @default(TEAM)
+  accountStatus              AccountStatus          @default(ACTIVE)
+  defaultStudioId            String?
+  defaultStudio              Studio?                @relation("DefaultStudioMembers", fields: [defaultStudioId], references: [id])
+  createdAt                  DateTime               @default(now())
+  updatedAt                  DateTime               @updatedAt
+  internProfile              InternProfile?         @relation("InternProfileOwner")
+  mentoredInternProfiles     InternProfile[]        @relation("InternMentor")
+  placements                 Placement[]            @relation("UserPlacements")
+  createdPlacements          Placement[]            @relation("PlacementCreator")
+  qrCredentials              QrCredential[]         @relation("UserQrCredentials")
+  createdQrCredentials       QrCredential[]         @relation("QrCredentialCreator")
+  createdPolicies            AttendancePolicy[]     @relation("AttendancePolicyCreator")
+  createdCalendarEvents      CalendarEvent[]        @relation("CalendarEventCreator")
+  personalSchedules          PersonalWorkSchedule[] @relation("PersonalScheduleUser")
+  createdPersonalSchedules   PersonalWorkSchedule[] @relation("PersonalScheduleCreator")
+  attendanceRecords          AttendanceRecord[]     @relation("AttendanceUser")
+  createdAttendanceRecords   AttendanceRecord[]     @relation("AttendanceCreator")
+  requestedCorrections       AttendanceCorrection[] @relation("CorrectionRequester")
+  approvedCorrections        AttendanceCorrection[] @relation("CorrectionApprover")
+  requests                   Request[]              @relation("RequestUser")
+  reviewedRequests           Request[]              @relation("RequestReviewer")
+  picketSchedules            PicketSchedule[]
+  notifications              Notification[]
+  auditLogs                  AuditLog[]             @relation("AuditActor")
+
+  @@index([role])
+  @@index([accountStatus])
+  @@index([defaultStudioId])
+}
+
+model InternProfile {
+  id          String        @id @default(uuid())
+  userId      String        @unique
+  user        User          @relation("InternProfileOwner", fields: [userId], references: [id])
+  program     InternProgram
+  institution String
+  startDate   DateTime      @db.Date
+  endDate     DateTime      @db.Date
+  mentorId    String?
+  mentor      User?         @relation("InternMentor", fields: [mentorId], references: [id])
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([mentorId])
+}
+
+model Placement {
+  id          String          @id @default(uuid())
+  userId      String
+  user        User            @relation("UserPlacements", fields: [userId], references: [id])
+  studioId    String
+  studio      Studio          @relation(fields: [studioId], references: [id])
+  startDate   DateTime        @db.Date
+  endDate     DateTime?       @db.Date
+  status      PlacementStatus @default(ACTIVE)
+  reason      String?
+  createdById String?
+  createdBy   User?           @relation("PlacementCreator", fields: [createdById], references: [id])
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@index([userId, status])
+  @@index([studioId, status])
+}
+
+model QrCredential {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation("UserQrCredentials", fields: [userId], references: [id])
+  qrUid       String   @unique
+  tokenHash   String
+  status      QrStatus @default(ACTIVE)
+  issuedAt    DateTime @default(now())
+  revokedAt   DateTime?
+  createdById String?
+  createdBy   User?    @relation("QrCredentialCreator", fields: [createdById], references: [id])
+
+  @@index([userId, status])
+}
+
+model AttendancePolicy {
+  id                    String   @id @default(uuid())
+  studioId              String
+  studio                Studio   @relation(fields: [studioId], references: [id])
+  checkInTime           String   @default("08:00")
+  checkOutTime          String   @default("16:00")
+  breakStartTime        String?
+  breakEndTime          String?
+  graceMinutes          Int      @default(10)
+  alphaCutoffTime       String   @default("12:00")
+  sickCutoffMinutes     Int      @default(60)
+  permissionNoticeHours Int      @default(24)
+  lateSameDayMakeup     Boolean  @default(true)
+  alphaOtherDayMakeup   Boolean  @default(true)
+  isActive              Boolean  @default(true)
+  createdById           String?
+  createdBy             User?    @relation("AttendancePolicyCreator", fields: [createdById], references: [id])
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@index([studioId, isActive])
+}
+
+model WeeklyWorkRule {
+  id             String   @id @default(uuid())
+  studioId       String
+  studio         Studio   @relation(fields: [studioId], references: [id])
+  dayOfWeek      Int
+  isWorkday      Boolean  @default(true)
+  workStartTime  String   @default("08:00")
+  workEndTime    String   @default("16:00")
+  breakStartTime String?
+  breakEndTime   String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([studioId, dayOfWeek])
+}
+
+model CalendarEvent {
+  id                    String            @id @default(uuid())
+  studioId              String?
+  studio                Studio?           @relation(fields: [studioId], references: [id])
+  type                  CalendarEventType
+  title                 String
+  startDate             DateTime          @db.Date
+  endDate               DateTime          @db.Date
+  isReplacementRequired Boolean           @default(false)
+  replacementDate       DateTime?         @db.Date
+  isFinalHoliday        Boolean           @default(false)
+  note                  String?
+  createdById           String?
+  createdBy             User?             @relation("CalendarEventCreator", fields: [createdById], references: [id])
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
+
+  @@index([studioId, startDate])
+  @@index([type])
+}
+
+model PersonalWorkSchedule {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation("PersonalScheduleUser", fields: [userId], references: [id])
+  workDate    DateTime @db.Date
+  workMode    WorkMode @default(WFO)
+  studioId    String?
+  studio      Studio?  @relation(fields: [studioId], references: [id])
+  note        String?
+  createdById String?
+  createdBy   User?    @relation("PersonalScheduleCreator", fields: [createdById], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([userId, workDate])
+  @@index([studioId, workDate])
+}
+
+model AttendanceRecord {
+  id                       String                   @id @default(uuid())
+  userId                   String
+  user                     User                     @relation("AttendanceUser", fields: [userId], references: [id])
+  attendanceDate           DateTime                 @db.Date
+  ownerStudioId            String
+  ownerStudio              Studio                   @relation("AttendanceOwnerStudio", fields: [ownerStudioId], references: [id])
+  locationStudioId         String?
+  locationStudio           Studio?                  @relation("AttendanceLocationStudio", fields: [locationStudioId], references: [id])
+  workMode                 WorkMode                 @default(WFO)
+  status                   AttendanceStatus
+  checkInAt                DateTime?
+  checkOutAt               DateTime?
+  checkInLatitude          Float?
+  checkInLongitude         Float?
+  checkOutLatitude         Float?
+  checkOutLongitude        Float?
+  locationValidationStatus LocationValidationStatus @default(UNAVAILABLE)
+  distanceMeters           Float?
+  wfhPlan                  String?
+  wfhReport                String?
+  lateMinutes              Int                      @default(0)
+  isManualCorrection       Boolean                  @default(false)
+  createdById              String?
+  createdBy                User?                    @relation("AttendanceCreator", fields: [createdById], references: [id])
+  createdAt                DateTime                 @default(now())
+  updatedAt                DateTime                 @updatedAt
+  corrections              AttendanceCorrection[]
+
+  @@unique([userId, attendanceDate])
+  @@index([ownerStudioId, attendanceDate])
+  @@index([locationStudioId, attendanceDate])
+  @@index([status])
+}
+
+model AttendanceCorrection {
+  id                 String           @id @default(uuid())
+  attendanceRecordId String
+  attendanceRecord   AttendanceRecord @relation(fields: [attendanceRecordId], references: [id])
+  requestedById      String
+  requestedBy        User             @relation("CorrectionRequester", fields: [requestedById], references: [id])
+  approvedById       String?
+  approvedBy         User?            @relation("CorrectionApprover", fields: [approvedById], references: [id])
+  previousStatus     AttendanceStatus?
+  newStatus          AttendanceStatus?
+  reason             String
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+
+  @@index([attendanceRecordId])
+}
+
+model Request {
+  id            String        @id @default(uuid())
+  userId        String
+  user          User          @relation("RequestUser", fields: [userId], references: [id])
+  type          RequestType
+  status        RequestStatus @default(PENDING)
+  startDate     DateTime      @db.Date
+  endDate       DateTime      @db.Date
+  reason        String
+  attachmentUrl String?
+  reviewerId    String?
+  reviewer      User?         @relation("RequestReviewer", fields: [reviewerId], references: [id])
+  reviewedAt    DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([userId, status])
+  @@index([type, status])
+}
+
+model PicketSchedule {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  studioId    String
+  studio      Studio   @relation(fields: [studioId], references: [id])
+  picketDate  DateTime @db.Date
+  note        String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([userId, picketDate])
+  @@index([studioId, picketDate])
+}
+
+model Reminder {
+  id            String   @id @default(uuid())
+  studioId      String?
+  studio        Studio?  @relation(fields: [studioId], references: [id])
+  title         String
+  message       String
+  scheduledTime String
+  type          String
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([studioId, isActive])
+}
+
+model Notification {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  title     String
+  message   String
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId, readAt])
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  actorId   String?
+  actor     User?    @relation("AuditActor", fields: [actorId], references: [id])
+  entity    String
+  entityId  String?
+  action    String
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  @@index([actorId, createdAt])
+  @@index([entity, entityId])
+}
